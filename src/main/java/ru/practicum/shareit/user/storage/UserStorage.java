@@ -7,15 +7,17 @@ import java.util.List;
 
 public interface UserStorage {
 
-    UserDto create(UserDto newUser);
+    User create(User newUser);
 
-    UserDto update(long id, UserDto user);
-
-    UserDto getByIdDto(long id);
+    User update(long id, UserDto user);
 
     User getById(long id);
 
     void delete(long id);
 
-    List<UserDto> getAll();
+    boolean emailIsBusy(String email);
+
+    User userByMail(String email);
+
+    List<User> getAll();
 }
