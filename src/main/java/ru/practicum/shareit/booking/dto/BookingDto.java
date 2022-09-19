@@ -1,7 +1,17 @@
 package ru.practicum.shareit.booking.dto;
 
-/**
- * // TODO .
- */
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
 public class BookingDto {
+
+    private Long itemId;
+
+    private LocalDateTime start;
+
+    private LocalDateTime end;
 }
