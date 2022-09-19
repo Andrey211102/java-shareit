@@ -54,7 +54,7 @@ public class BookingService {
                 .orElseThrow(() -> new UserNotFoundException(actionName + ", по переданному id не найден владелец!"));
 
         //Своя же вещь
-        if (item.getOwner().getId() == bookerId) throw new ItemNotFoundException(actionName +
+        if (item.getOwner().getId() == bookerId.longValue()) throw new ItemNotFoundException(actionName +
                 ", нельзя забронировать свою вещь!");
 
         Booking booking = mapper.fromDto(bookingDto, item, booker, BookingStatus.WAITING);
