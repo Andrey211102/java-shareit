@@ -25,6 +25,7 @@ public class Booking {
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
