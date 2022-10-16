@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
@@ -9,8 +10,11 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentInfDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInfDto;
+import ru.practicum.shareit.item.exceptions.ItemValidationException;
 import ru.practicum.shareit.item.service.ItemService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -38,13 +42,32 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemInfDto> getByOwner(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-        return service.getByOwner(ownerId);
+    public List<ItemInfDto> getByOwner(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                                       @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                       Integer from,
+                                       @Positive @RequestParam(name = "size", defaultValue = "10")
+                                       Integer size) {
+
+        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        return service.getByOwner(ownerId, pageRequest);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getById(@RequestParam(name = "text") String request) {
-        return service.search(request);
+    public List<ItemDto> search(@RequestParam(name = "text") String text,
+                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                Integer from,
+                                @Positive @RequestParam(name = "size", defaultValue = "10")
+                                Integer size) {
+
+        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
+
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        return service.search(text, pageRequest);
     }
 
     @PostMapping("/{itemId}/comment")

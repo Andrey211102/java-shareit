@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.BookingStorage;
@@ -15,6 +16,9 @@ import ru.practicum.shareit.item.dto.ItemInfDto;
 import ru.practicum.shareit.item.exceptions.ItemForbiddenException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.ItemValidationException;
+import ru.practicum.shareit.requests.ItemRequest;
+import ru.practicum.shareit.requests.ItemRequestsStorage;
+import ru.practicum.shareit.requests.exceptions.ItemRequestNotFoundExeption;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
@@ -22,6 +26,7 @@ import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,6 +35,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemStorage storage;
+    private final ItemRequestsStorage requestsStorage;
     private final UserStorage userStorage;
     private final BookingStorage bookingStorage;
     private final CommentStrorage commentStrorage;
@@ -37,7 +43,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemDtoMapper mapper;
 
     @Override
-    public ItemDto create(long idOwner, ItemDto newItem) {
+    public ItemDto create(long idOwner, ItemDto dto) {
 
         String action = "Добавление Item";
 
@@ -48,8 +54,16 @@ public class ItemServiceImpl implements ItemService {
         User owner = userStorage.findById(idOwner).orElseThrow(() -> new UserNotFoundException(action + "," +
                 "не найден владелец по id:  " + idOwner));
 
+        Optional<ItemRequest> request = Optional.empty();
+
+        if (dto.getRequestId() != null) {
+            request = requestsStorage.findById(dto.getRequestId());
+            if (request.isEmpty()) throw
+                    new ItemRequestNotFoundExeption(action + ",не найден запрос по id:  " + dto.getRequestId());
+        }
+
         //Сохранение
-        Item item = mapper.fromDto(newItem, owner);
+        Item item = mapper.fromDto(dto, owner, request);
         Item createdItem = storage.save(item);
 
         log.info("Добавлен новый предмет: {}", createdItem.getName());
@@ -95,9 +109,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemInfDto> getByOwner(long idOwner) {
+    public List<ItemInfDto> getByOwner(long idOwner, PageRequest pageRequest) {
 
-        return storage.findByOwner_IdOrderById(idOwner)
+        return storage.findByOwner_IdOrderById(idOwner, pageRequest)
                 .stream()
                 .map(item -> mapper.toInfDto(item,
                         bookingStorage.getFirstByItem_IdAndItem_Owner_IdOrderByEnd(item.getId(), idOwner),
@@ -136,11 +150,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String request) {
+    public List<ItemDto> search(String request, PageRequest pageRequest) {
 
         if (request.length() == 0) return new ArrayList<>();
 
-        return storage.search(request)
+        return storage.search(request, pageRequest)
                 .stream()
                 .map((mapper::toDto))
                 .collect(Collectors.toList());
