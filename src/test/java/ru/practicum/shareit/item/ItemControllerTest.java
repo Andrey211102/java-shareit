@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -142,9 +141,9 @@ class ItemControllerTest {
     void shouldEqualsSizeGetByOwner() throws Exception {
 
         List<ItemInfDto> itemInfDtos = Arrays.asList(infDto, infDto2);
-        PageRequest request = PageRequest.ofSize(10);
 
-        when(service.getByOwner(1L, request))
+
+        when(service.getByOwner(1L, 0, 10))
                 .thenReturn(itemInfDtos);
 
         mockMvc.perform(get("/items")
@@ -153,16 +152,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
 
-        verify(service, times(1)).getByOwner(1L, request);
-    }
-
-    @Test
-    void shouldReturnStatus4xxGetByOwnerInvalidParams() throws Exception {
-        mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("from", "-5")
-                        .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().is4xxClientError());
+        verify(service, times(1)).getByOwner(1L, 0, 10);
     }
 
     @Test
@@ -177,9 +167,8 @@ class ItemControllerTest {
     void shouldReturnStatusOkAndSizeEquals() throws Exception {
 
         List<ItemDto> itemDtos = Arrays.asList(itemDto1, itemDto2);
-        PageRequest request = PageRequest.ofSize(10);
 
-        when(service.search("дрель", request))
+        when(service.search("дрель", 1, 10))
                 .thenReturn(itemDtos);
 
         mockMvc.perform(get("/items/search")

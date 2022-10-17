@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfDto;
@@ -149,7 +148,7 @@ class BookingServiceTest {
     @Test
     void shouldEqualsCountGetAllByState() {
         List<BookingInfDto> finded = service.getAllByState(booking.getBooker().getId(),
-                BookingStatus.WAITING.name(), PageRequest.of(0, 10));
+                BookingStatus.WAITING.name(), 0, 10);
         assertEquals(1, finded.size());
     }
 
@@ -158,7 +157,7 @@ class BookingServiceTest {
 
         assertThrows(BookingStatusValidateExeption.class,
                 () -> service.getAllByState(booking.getBooker().getId(),
-                        "1111", PageRequest.of(0, 10)));
+                        "1111", 0, 10));
     }
 
     @Test
@@ -168,7 +167,7 @@ class BookingServiceTest {
         Booking booking2 = bookingStorage.save(mapper.fromDto(dto, item2, user, BookingStatus.WAITING));
 
         List<BookingInfDto> finded = service.getAllByState(booking.getBooker().getId(),
-                BookingState.CURRENT.name(), PageRequest.of(0, 10));
+                BookingState.CURRENT.name(), 0, 10);
 
         assertEquals(booking2.getId(), finded.get(0).getId());
     }
@@ -182,7 +181,7 @@ class BookingServiceTest {
         Booking booking2 = bookingStorage.save(mapper.fromDto(dto, item2, user, BookingStatus.WAITING));
 
         List<BookingInfDto> finded = service.getAllByState(booking.getBooker().getId(),
-                BookingState.PAST.name(), PageRequest.of(0, 10));
+                BookingState.PAST.name(), 0, 10);
 
         assertEquals(booking2.getId(), finded.get(0).getId());
     }
@@ -190,7 +189,7 @@ class BookingServiceTest {
     @Test
     void shouldEqualsIdsByStateFUTUREGetAllByState() {
         List<BookingInfDto> finded = service.getAllByState(booking.getBooker().getId(),
-                BookingState.FUTURE.name(), PageRequest.of(0, 10));
+                BookingState.FUTURE.name(), 0, 10);
 
         assertEquals(booking.getId(), finded.get(0).getId());
     }
@@ -199,7 +198,7 @@ class BookingServiceTest {
     void shouldEqualsCountGetAllByOwnerAndState() {
 
         List<BookingInfDto> finded = service.getAllByOwnerAndState(user2.getId(),
-                BookingState.ALL.name(), PageRequest.of(0, 10));
+                BookingState.ALL.name(), 0, 10);
 
         assertEquals(0, finded.size());
     }
@@ -209,20 +208,20 @@ class BookingServiceTest {
 
         assertThrows(BookingStatusValidateExeption.class,
                 () -> service.getAllByOwnerAndState(booking.getBooker().getId(),
-                        "1111", PageRequest.of(0, 10)));
+                        "1111", 0, 10));
     }
 
     @Test
     void shouldThrowUserNotFoundExceptionGetAllByOwnerAndStateUnknowOwner() {
         assertThrows(UserNotFoundException.class,
                 () -> service.getAllByOwnerAndState(100L,
-                        BookingState.ALL.name(), PageRequest.of(0, 10)));
+                        BookingState.ALL.name(), 0, 10));
     }
 
     @Test
     void shouldEqualsCountByStateFUTUREgetAllByOwnerAndState() {
         List<BookingInfDto> finded = service.getAllByOwnerAndState(booking.getBooker().getId(),
-                BookingState.FUTURE.name(), PageRequest.of(0, 10));
+                BookingState.FUTURE.name(), 0, 10);
 
         assertEquals(booking.getId(), finded.get(0).getId());
     }
@@ -234,7 +233,7 @@ class BookingServiceTest {
         Booking booking2 = bookingStorage.save(mapper.fromDto(dto, item2, user, BookingStatus.WAITING));
 
         List<BookingInfDto> finded = service.getAllByOwnerAndState(booking.getBooker().getId(),
-                BookingState.CURRENT.name(), PageRequest.of(0, 10));
+                BookingState.CURRENT.name(), 0, 10);
 
         assertEquals(booking2.getId(), finded.get(0).getId());
     }
@@ -246,7 +245,7 @@ class BookingServiceTest {
         Booking booking2 = bookingStorage.save(mapper.fromDto(dto, item2, user, BookingStatus.WAITING));
 
         List<BookingInfDto> finded = service.getAllByOwnerAndState(booking.getBooker().getId(),
-                BookingState.WAITING.name(), PageRequest.of(0, 10));
+                BookingState.WAITING.name(), 0, 10);
 
         assertEquals(2, finded.size());
     }
@@ -259,7 +258,7 @@ class BookingServiceTest {
         Booking booking2 = bookingStorage.save(mapper.fromDto(dto, item2, user, BookingStatus.WAITING));
 
         List<BookingInfDto> finded = service.getAllByOwnerAndState(booking2.getBooker().getId(),
-                BookingState.PAST.name(), PageRequest.of(0, 10));
+                BookingState.PAST.name(), 0, 10);
 
         assertEquals(1, finded.size());
     }

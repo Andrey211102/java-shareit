@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS item_requests
 (
     request_id  BIGINT GENERATED ALWAYS AS IDENTITY,
     description VARCHAR(200) DEFAULT '',
-    created     TIMESTAMP NOT NULL,
+    created     TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     user_id     BIGINT,
 
     CONSTRAINT pk_item_requests PRIMARY KEY (request_id),

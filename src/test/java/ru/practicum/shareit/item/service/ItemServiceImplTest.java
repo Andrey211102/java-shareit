@@ -5,9 +5,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.*;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingDtoMapper;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -138,7 +140,7 @@ class ItemServiceImplTest {
     //getByOwner
     @Test
     void shouldEqulsCountGetByOwner() {
-        List<ItemInfDto> infDtos = service.getByOwner(user.getId(), PageRequest.of(0, 10));
+        List<ItemInfDto> infDtos = service.getByOwner(user.getId(), 0, 10);
         assertEquals(2, infDtos.size());
     }
 
@@ -170,7 +172,7 @@ class ItemServiceImplTest {
     @Test
     void shouldEqulsCountAndIdSearch() {
 
-        List<ItemDto> finded = service.search("ДреЛь", PageRequest.of(0, 10));
+        List<ItemDto> finded = service.search("ДреЛь", 0, 10);
         assertAll(String.valueOf(true),
                 () -> assertEquals(1, finded.size()),
                 () -> assertEquals(item.getId(), finded.get(0).getId()));
@@ -180,6 +182,6 @@ class ItemServiceImplTest {
     void shouldEqualsQComment() {
         Comment comment = new Comment(1L, item, user, "Комментарий", LocalDateTime.now());
         BooleanExpression byId = QComment.comment.id.eq(comment.getId());
-        assertNotEquals(byId,comment.getId());
+        assertNotEquals(byId, comment.getId());
     }
 }

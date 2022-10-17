@@ -109,7 +109,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemInfDto> getByOwner(long idOwner, PageRequest pageRequest) {
+    public List<ItemInfDto> getByOwner(long idOwner, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         return storage.findByOwner_IdOrderById(idOwner, pageRequest)
                 .stream()
@@ -150,7 +154,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String request, PageRequest pageRequest) {
+    public List<ItemDto> search(String request, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
+
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         if (request.length() == 0) return new ArrayList<>();
 

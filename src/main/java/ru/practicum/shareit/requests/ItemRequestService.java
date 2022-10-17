@@ -55,7 +55,12 @@ public class ItemRequestService {
         return mapper.toInfDto(request, itemStorage.findAllByRequest_Id(id));
     }
 
-    public List<ItemRequestInfDto> getByUserid(long userId, PageRequest pageRequest) {
+    public List<ItemRequestInfDto> getByUserid(long userId, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemRequestValidationExeption("Получен не корректный параметр from: " + from);
+        int page = from / size;
+
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         String action = "Получение запросов по id пользователя";
         User user = userStorage.findById(userId).orElseThrow(() -> new UserNotFoundException(action + "," +
@@ -67,7 +72,12 @@ public class ItemRequestService {
                 .collect(Collectors.toList());
     }
 
-    public List<ItemRequestInfDto> getAll(Long userId, PageRequest pageRequest) {
+    public List<ItemRequestInfDto> getAll(Long userId, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemRequestValidationExeption("Получен не корректный параметр from: " + from);
+
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         String action = "Получение запросов других пользователей";
         User user = userStorage.findById(userId).orElseThrow(() -> new UserNotFoundException(action + "," +

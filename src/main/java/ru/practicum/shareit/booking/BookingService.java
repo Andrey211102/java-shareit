@@ -92,9 +92,15 @@ public class BookingService {
         return mapper.toInfDto(booking);
     }
 
-    public List<BookingInfDto> getAllByState(Long bookerId, String stateBooking, PageRequest pageRequest) {
+    public List<BookingInfDto> getAllByState(Long bookerId, String stateBooking, Integer from, Integer size) {
 
         BookingState state;
+
+        if (from < 0) throw new BookingValidationException("Получен не корректный параметр from: " + from);
+
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
+
         try {
             state = BookingState.valueOf(stateBooking);
         } catch (IllegalArgumentException e) {
@@ -134,7 +140,12 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    public List<BookingInfDto> getAllByOwnerAndState(Long ownerId, String stateBooking, PageRequest pageRequest) {
+    public List<BookingInfDto> getAllByOwnerAndState(Long ownerId, String stateBooking, Integer from, Integer size) {
+
+        if (from < 0) throw new BookingValidationException("Получен не корректный параметр from: " + from);
+
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         BookingState state;
         try {

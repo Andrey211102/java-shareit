@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemStorage;
@@ -110,13 +109,13 @@ class ItemRequestServiceTest {
     @Test
     void shouldThrowUserNotFoundExceptionWhenGetByUseridIncorrectId() {
         assertThrows(UserNotFoundException.class, () ->
-                service.getByUserid(100, PageRequest.of(0, 10)));
+                service.getByUserid(100, 0, 10));
     }
 
     @Test
     void shouldEqualsGetByUserid() {
 
-        List<ItemRequestInfDto> byUserid = service.getByUserid(user.getId(), PageRequest.of(0, 10));
+        List<ItemRequestInfDto> byUserid = service.getByUserid(user.getId(), 0, 10);
         ItemRequestInfDto infDto = byUserid.get(0);
 
         assertAll(String.valueOf(true),
@@ -130,7 +129,7 @@ class ItemRequestServiceTest {
     @Test
     void shouldThrowUserNotFoundExceptionWhenGetAllidIncorrectId() {
         assertThrows(UserNotFoundException.class, () ->
-                service.getAll(100L, PageRequest.of(0, 10)));
+                service.getAll(100L, 0, 10));
     }
 
     @Test
@@ -141,7 +140,7 @@ class ItemRequestServiceTest {
         ItemRequestInfDto infDto2 = service.create(user2.getId(), new ItemRequestDto("Описание2"));
         ItemRequestInfDto infDto3 = service.create(user2.getId(), new ItemRequestDto("Описание3"));
 
-        List<ItemRequestInfDto> byUserid = service.getAll(user.getId(), PageRequest.of(0, 10));
+        List<ItemRequestInfDto> byUserid = service.getAll(user.getId(), 0, 10);
 
         assertAll(String.valueOf(true),
                 () -> assertEquals(3, byUserid.size()));

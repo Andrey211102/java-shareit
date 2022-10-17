@@ -120,7 +120,7 @@ class ItemRequestControllerTest {
 
         PageRequest request = PageRequest.ofSize(10);
 
-        when(service.getByUserid(2L, request))
+        when(service.getByUserid(2L, 0, 10))
                 .thenReturn(Arrays.asList(infDto1, infDto2));
 
         mockMvc.perform(get("/requests")
@@ -130,14 +130,14 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$", IsCollectionWithSize.hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(infDto1.getId()), Long.class));
 
-        verify(service, times(1)).getByUserid(2L, request);
+        verify(service, times(1)).getByUserid(2L, 0, 10);
     }
 
 
     @Test
     void shouldEqualsCountRequestsAndStatusOkGetAll() throws Exception {
 
-        when(service.getAll(any(), eq(PageRequest.of(0, 10))))
+        when(service.getAll(1L, 0, 10))
                 .thenReturn(Arrays.asList(infDto1, infDto2));
 
         mockMvc.perform(get("/requests/all")
@@ -147,8 +147,7 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$", IsCollectionWithSize.hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(infDto1.getId()), Long.class))
                 .andExpect(jsonPath("$[1].id", is(infDto2.getId()), Long.class));
-        ;
 
-        verify(service, times(1)).getAll(1L, PageRequest.of(0, 10));
+        verify(service, times(1)).getAll(1L, 0, 10);
     }
 }

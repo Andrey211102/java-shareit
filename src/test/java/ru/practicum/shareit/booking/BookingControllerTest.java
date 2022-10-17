@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -117,7 +116,7 @@ class BookingControllerTest {
     @Test
     void shouldReturnOAndEqualsSizeGetAllByOwnerAndState() throws Exception {
 
-        when(service.getAllByOwnerAndState(1L, BookingStatus.APPROVED.name(), PageRequest.of(0, 10)))
+        when(service.getAllByOwnerAndState(1L, BookingStatus.APPROVED.name(), 0, 10))
                 .thenReturn(Arrays.asList(infDto2, infDto3));
 
         mockMvc.perform(get("/bookings/owner")
@@ -128,17 +127,9 @@ class BookingControllerTest {
     }
 
     @Test
-    void shouldReturn4xxGetAllByOwnerAndStateWhenIncorrectFrom() throws Exception {
-        mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("from", "-1"))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
     void shouldEqualsSizeReturnGetAllByStateAndReturnStatusOk() throws Exception {
 
-        when(service.getAllByState(1L, BookingStatus.APPROVED.name(), PageRequest.of(0, 10)))
+        when(service.getAllByState(1L, BookingStatus.APPROVED.name(), 0, 10))
                 .thenReturn(Arrays.asList(infDto2, infDto3));
 
         mockMvc.perform(get("/bookings")
@@ -148,6 +139,6 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)));
 
         verify(service, times(1)).getAllByState(1L,
-                BookingStatus.APPROVED.name(), PageRequest.of(0, 10));
+                BookingStatus.APPROVED.name(), 0, 10);
     }
 }

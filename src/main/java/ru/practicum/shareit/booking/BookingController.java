@@ -2,13 +2,11 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfDto;
-import ru.practicum.shareit.item.exceptions.ItemValidationException;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -27,6 +25,7 @@ public class BookingController {
                                 @Validated({Create.class}) @RequestBody BookingDto bookingDto) {
 
         log.info("Получен POST - запрос создания нового бронирования, user id: {}", bookerId);
+
         return service.create(bookerId, bookingDto);
     }
 
@@ -36,6 +35,7 @@ public class BookingController {
                                       @RequestParam(value = "approved") Boolean approved) {
 
         log.info("Получен PATH - запрос подтверждения бронирования id: {}, значение: {}", bookingId, approved);
+
         return service.confirmation(ownerItemId, bookingId, approved);
     }
 
@@ -43,6 +43,7 @@ public class BookingController {
     public BookingInfDto getById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId) {
 
         log.info("Получен GET - запрос полученя бронирования по id: {}", bookingId);
+
         return service.getByIdAndBookerOrOwner(userId, bookingId);
     }
 
@@ -55,14 +56,9 @@ public class BookingController {
                                              @Positive @RequestParam(name = "size", defaultValue = "10")
                                              Integer size) {
 
-
-        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
-
-        int page = from / size;
-        PageRequest pageRequest = PageRequest.of(page, size);
         log.info("Получен GET - запрос полученя списка бронирований c состоянием: {}", state);
 
-        return service.getAllByState(bookerId, state, pageRequest);
+        return service.getAllByState(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
@@ -73,12 +69,10 @@ public class BookingController {
                                                      Integer from,
                                                      @Positive @RequestParam(name = "size", defaultValue = "10")
                                                      Integer size) {
-        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
 
-        int page = from / size;
-        PageRequest pageRequest = PageRequest.of(page, size);
 
         log.info("Получен GET - запрос полученя списка бронирований владельца id:{}, c состоянием: {}", bookerId, state);
-        return service.getAllByOwnerAndState(bookerId, state, pageRequest);
+
+        return service.getAllByOwnerAndState(bookerId, state, from, size);
     }
 }
