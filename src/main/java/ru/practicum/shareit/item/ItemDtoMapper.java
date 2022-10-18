@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInfDto;
+import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class ItemDtoMapper {
 
     private final CommentDtoMapper commentMapper;
 
-    public Item fromDto(ItemDto dtoItem, User owner) {
+    public Item fromDto(ItemDto dtoItem, User owner, Optional<ItemRequest> request) {
 
         Item item = new Item();
 
@@ -25,6 +26,7 @@ public class ItemDtoMapper {
         item.setDescription(dtoItem.getDescription());
         item.setAvailable(dtoItem.getAvailable());
         item.setOwner(owner);
+        if (request.isPresent()) item.setRequest(request.get());
 
         return item;
     }
@@ -37,6 +39,7 @@ public class ItemDtoMapper {
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.isAvailable());
+        if (item.getRequest() != null) dto.setRequestId(item.getRequest().getId());
 
         return dto;
     }

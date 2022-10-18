@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfDto;
@@ -90,9 +92,15 @@ public class BookingService {
         return mapper.toInfDto(booking);
     }
 
-    public List<BookingInfDto> getAllByState(Long bookerId, String stateBooking) {
+    public List<BookingInfDto> getAllByState(Long bookerId, String stateBooking, Integer from, Integer size) {
 
         BookingState state;
+
+        if (from < 0) throw new BookingValidationException("Получен не корректный параметр from: " + from);
+
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
+
         try {
             state = BookingState.valueOf(stateBooking);
         } catch (IllegalArgumentException e) {
@@ -103,26 +111,28 @@ public class BookingService {
         User booker = userStorage.findById(bookerId).orElseThrow(() -> new UserNotFoundException(
                 "Получение бронирований по статусу, не найден заказчик с id: " + bookerId));
 
-        List<Booking> bookings;
+        Page<Booking> bookings;
 
         switch (state) {
             case CURRENT:
-                bookings = storage.findByBookerAndDatesCurrent(bookerId, LocalDateTime.now());
+                bookings = storage.findByBookerAndDatesCurrent(bookerId, LocalDateTime.now(), pageRequest);
                 break;
             case PAST:
-                bookings = storage.findByBookerAndDatesPast(bookerId, LocalDateTime.now());
+                bookings = storage.findByBookerAndDatesPast(bookerId, LocalDateTime.now(), pageRequest);
                 break;
             case REJECTED:
-                bookings = storage.findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(), BookingStatus.REJECTED);
+                bookings = storage.findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(), BookingStatus.REJECTED,
+                        pageRequest);
                 break;
             case WAITING:
-                bookings = storage.findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(), BookingStatus.WAITING);
+                bookings = storage.findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(), BookingStatus.WAITING,
+                        pageRequest);
                 break;
             case FUTURE:
-                bookings = storage.findByBookerAndDatesFuture(bookerId, LocalDateTime.now());
+                bookings = storage.findByBookerAndDatesFuture(bookerId, LocalDateTime.now(), pageRequest);
                 break;
             default:
-                bookings = storage.findAllByBooker_IdOrderByStartDesc(booker.getId());
+                bookings = storage.findAllByBooker_IdOrderByStartDesc(booker.getId(), pageRequest);
         }
 
         return bookings.stream()
@@ -130,7 +140,12 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    public List<BookingInfDto> getAllByOwnerAndState(Long ownerId, String stateBooking) {
+    public List<BookingInfDto> getAllByOwnerAndState(Long ownerId, String stateBooking, Integer from, Integer size) {
+
+        if (from < 0) throw new BookingValidationException("Получен не корректный параметр from: " + from);
+
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         BookingState state;
         try {
@@ -143,28 +158,28 @@ public class BookingService {
         User owner = userStorage.findById(ownerId).orElseThrow(() -> new UserNotFoundException(
                 "Получение бронирований по статусу, не найден владелец предмета с id: " + ownerId));
 
-        List<Booking> bookings;
+        Page<Booking> bookings;
 
         switch (state) {
             case CURRENT:
-                bookings = storage.findByOwnerAndDatesCurrent(ownerId, LocalDateTime.now());
+                bookings = storage.findByOwnerAndDatesCurrent(ownerId, LocalDateTime.now(), pageRequest);
                 break;
             case PAST:
-                bookings = storage.findByOwnerAndDatesPast(ownerId, LocalDateTime.now());
+                bookings = storage.findByOwnerAndDatesPast(ownerId, LocalDateTime.now(), pageRequest);
                 break;
             case REJECTED:
                 bookings = storage.findAllByItem_Owner_IdAndStatusOrderByStartDesc(owner.getId(),
-                        BookingStatus.REJECTED);
+                        BookingStatus.REJECTED, pageRequest);
                 break;
             case WAITING:
                 bookings = storage.findAllByItem_Owner_IdAndStatusOrderByStartDesc(owner.getId(),
-                        BookingStatus.WAITING);
+                        BookingStatus.WAITING, pageRequest);
                 break;
             case FUTURE:
-                bookings = storage.findByOwnerAndDatesFuture(ownerId, LocalDateTime.now());
+                bookings = storage.findByOwnerAndDatesFuture(ownerId, LocalDateTime.now(), pageRequest);
                 break;
             default:
-                bookings = storage.findAllByItem_Owner_IdOrderByStartDesc(owner.getId());
+                bookings = storage.findAllByItem_Owner_IdOrderByStartDesc(owner.getId(), pageRequest);
         }
         return bookings.stream()
                 .map(booking -> mapper.toInfDto(booking))

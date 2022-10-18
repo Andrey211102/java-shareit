@@ -3,12 +3,12 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.exceptions.UserConflictException;
-import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserDtoMapper;
 import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.exceptions.UserConflictException;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.List;
 import java.util.Optional;

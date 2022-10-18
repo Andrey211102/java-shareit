@@ -1,11 +1,12 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPredicateExecutor<Booking> {
@@ -17,9 +18,9 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
     Booking findByIdAndBookerOrOwner(Long bookingId, Long userId);
 
     //Поиск по bookerId
-    List<Booking> findAllByBooker_IdOrderByStartDesc(Long bookerId);
+    Page<Booking> findAllByBooker_IdOrderByStartDesc(Long bookerId, PageRequest request);
 
-    List<Booking> findAllByBooker_IdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status);
+    Page<Booking> findAllByBooker_IdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status, PageRequest request);
 
     @Query("select b" +
             " from Booking as b " +
@@ -28,7 +29,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
             "b.start > ?2 and " +
             "b.end > ?2 " +
             "order by b.start desc")
-    List<Booking> findByBookerAndDatesFuture(Long bookerId, LocalDateTime currentDate);
+    Page<Booking> findByBookerAndDatesFuture(Long bookerId, LocalDateTime currentDate, PageRequest request);
 
     @Query("select b" +
             " from Booking as b " +
@@ -36,7 +37,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
             "b.start < ?2 and " +
             "b.end > ?2 " +
             "order by b.start desc")
-    List<Booking> findByBookerAndDatesCurrent(Long bookerId, LocalDateTime currentDate);
+    Page<Booking> findByBookerAndDatesCurrent(Long bookerId, LocalDateTime currentDate, PageRequest request);
 
     @Query("select b" +
             " from Booking as b " +
@@ -44,14 +45,15 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
             "b.start < ?2 and " +
             "b.end < ?2 " +
             "order by b.start desc")
-    List<Booking> findByBookerAndDatesPast(Long bookerId, LocalDateTime currentDate);
+    Page<Booking> findByBookerAndDatesPast(Long bookerId, LocalDateTime currentDate, PageRequest request);
 
     //Поиск Item ownerId
     Booking findByIdAndItem_Owner_Id(Long id, Long ownerId);
 
-    List<Booking> findAllByItem_Owner_IdOrderByStartDesc(Long ownerId);
+    Page<Booking> findAllByItem_Owner_IdOrderByStartDesc(Long ownerId, PageRequest request);
 
-    List<Booking> findAllByItem_Owner_IdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status);
+    Page<Booking> findAllByItem_Owner_IdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status,
+                                                                  PageRequest request);
 
     @Query("select b" +
             " from Booking as b " +
@@ -59,7 +61,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
             "b.start > ?2 and " +
             "b.end > ?2 " +
             "order by b.start desc")
-    List<Booking> findByOwnerAndDatesFuture(Long ownerId, LocalDateTime currentDate);
+    Page<Booking> findByOwnerAndDatesFuture(Long ownerId, LocalDateTime currentDate, PageRequest request);
 
     @Query("select b" +
             " from Booking as b " +
@@ -67,7 +69,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
             "b.start < ?2 and " +
             "b.end > ?2 " +
             "order by b.start desc")
-    List<Booking> findByOwnerAndDatesCurrent(Long ownerId, LocalDateTime currentDate);
+    Page<Booking> findByOwnerAndDatesCurrent(Long ownerId, LocalDateTime currentDate, PageRequest request);
 
     @Query("select b" +
             " from Booking as b " +
@@ -75,7 +77,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
             "b.start < ?2 and " +
             "b.end < ?2 " +
             "order by b.start desc")
-    List<Booking> findByOwnerAndDatesPast(Long ownerId, LocalDateTime currentDate);
+    Page<Booking> findByOwnerAndDatesPast(Long ownerId, LocalDateTime currentDate, PageRequest request);
 
     Optional<Booking> getFirstByItem_IdAndItem_Owner_IdOrderByEnd(Long itemId, Long userId);
 
