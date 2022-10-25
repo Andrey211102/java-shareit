@@ -94,14 +94,6 @@ class BookingServiceTest {
     }
 
     @Test
-    void shouldThrowBookingValidationExceptionCreateNotAvailableItem() {
-        BookingDto dto2 = new BookingDto(2L, LocalDateTime.now().plusHours(1),
-                LocalDateTime.now().plusHours(10));
-
-        assertThrows(BookingValidationException.class, () -> service.create(item2.getOwner().getId(), dto2));
-    }
-
-    @Test
     void shouldThrowItemNotFoundExceptionCreateOwner() {
         assertThrows(ItemNotFoundException.class, () -> service.create(user.getId(), dto));
     }
