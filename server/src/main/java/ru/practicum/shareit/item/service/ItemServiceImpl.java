@@ -13,9 +13,9 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentInfDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInfDto;
+import ru.practicum.shareit.item.exceptions.ItemAddCommentException;
 import ru.practicum.shareit.item.exceptions.ItemForbiddenException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
-import ru.practicum.shareit.item.exceptions.ItemValidationException;
 import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.requests.ItemRequestsStorage;
 import ru.practicum.shareit.requests.exceptions.ItemRequestNotFoundExeption;
@@ -48,9 +48,6 @@ public class ItemServiceImpl implements ItemService {
         String action = "Добавление Item";
 
         //Проверки
-        if (idOwner <= 0) throw new ItemValidationException(action +
-                ", передан не корректный id владельца: " + idOwner);
-
         User owner = userStorage.findById(idOwner).orElseThrow(() -> new UserNotFoundException(action + "," +
                 "не найден владелец по id:  " + idOwner));
 
@@ -88,8 +85,6 @@ public class ItemServiceImpl implements ItemService {
 
         //Проверки
         String action = "Обновление Item";
-        if (idOwner <= 0) throw new ItemValidationException(action + ", передан не корректный id владельца : "
-                + idOwner);
 
         Item item = storage.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(action + ", не найден по id: " + id));
@@ -111,7 +106,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemInfDto> getByOwner(long idOwner, Integer from, Integer size) {
 
-        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
 
@@ -144,7 +138,7 @@ public class ItemServiceImpl implements ItemService {
 
         if (!bookingStorage.findAll(byBookerId.and(byStatus).and(byItemId).and(byLate))
                 .iterator()
-                .hasNext()) throw new ItemValidationException(action + ", автор не бронировал этот предмет!");
+                .hasNext()) throw new ItemAddCommentException(action + ", автор не бронировал этот предмет!");
 
         log.info("Добавлен комментарий к предмету: {}", item.getName());
 
@@ -155,8 +149,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> search(String request, Integer from, Integer size) {
-
-        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
 
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);

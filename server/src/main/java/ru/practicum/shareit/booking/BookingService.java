@@ -5,13 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.exceptions.BoockingStateException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfDto;
 import ru.practicum.shareit.booking.exceptions.BookingNotFoundException;
-import ru.practicum.shareit.booking.exceptions.BookingStatusValidateExeption;
-import ru.practicum.shareit.booking.exceptions.BookingValidationException;
+//import ru.practicum.shareit.booking.exceptions.BookingStatusValidateExeption;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
@@ -36,19 +36,12 @@ public class BookingService {
 
         String actionName = "Создание бронирования";
 
-        //Валидация дат
-        if (bookingDto.getStart().isBefore(LocalDateTime.now())) throw new BookingValidationException(actionName +
-                "Дата начала бронировния находится в прошлом");
-
-        if (bookingDto.getEnd().isBefore(bookingDto.getStart())) throw new BookingValidationException(actionName +
-                "Дата начала бронировния позже даты начала");
-
         //Предмет есть
         Item item = itemStorage.findById(bookingDto.getItemId())
                 .orElseThrow(() -> new ItemNotFoundException(actionName + ", по переданному id не найден предмет!"));
 
         //Предмет доступен
-        if (!item.isAvailable()) throw new BookingValidationException(actionName + " " + item.getName() +
+        if (!item.isAvailable()) throw new BoockingStateException(actionName + " " + item.getName() +
                 ", не доступен!");
 
         //Владелец
@@ -74,7 +67,7 @@ public class BookingService {
         if (booking == null) throw new BookingNotFoundException(action + ", не найдено бронирование " +
                 "по id: " + bookingId + " и id владельца предмета: " + ownerId);
 
-        if (booking.getStatus() == BookingStatus.APPROVED) throw new BookingValidationException(action +
+        if (booking.getStatus() == BookingStatus.APPROVED) throw new BoockingStateException(action +
                 ", бронирование уже подтверждено");
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -96,17 +89,10 @@ public class BookingService {
 
         BookingState state;
 
-        if (from < 0) throw new BookingValidationException("Получен не корректный параметр from: " + from);
-
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        try {
-            state = BookingState.valueOf(stateBooking);
-        } catch (IllegalArgumentException e) {
-            throw new BookingStatusValidateExeption("Получение всех бронирований, " +
-                    "передано неверное сотстояние " + stateBooking);
-        }
+        state = BookingState.valueOf(stateBooking);
 
         User booker = userStorage.findById(bookerId).orElseThrow(() -> new UserNotFoundException(
                 "Получение бронирований по статусу, не найден заказчик с id: " + bookerId));
@@ -142,18 +128,9 @@ public class BookingService {
 
     public List<BookingInfDto> getAllByOwnerAndState(Long ownerId, String stateBooking, Integer from, Integer size) {
 
-        if (from < 0) throw new BookingValidationException("Получен не корректный параметр from: " + from);
-
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
-
-        BookingState state;
-        try {
-            state = BookingState.valueOf(stateBooking);
-        } catch (IllegalArgumentException e) {
-            throw new BookingStatusValidateExeption("Получение всех бронирований, " +
-                    "передано неверное сотстояние " + stateBooking);
-        }
+        BookingState state = BookingState.valueOf(stateBooking);
 
         User owner = userStorage.findById(ownerId).orElseThrow(() -> new UserNotFoundException(
                 "Получение бронирований по статусу, не найден владелец предмета с id: " + ownerId));

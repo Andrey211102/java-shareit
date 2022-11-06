@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.dto.ItemRequestInfDto;
 import ru.practicum.shareit.requests.exceptions.ItemRequestNotFoundExeption;
-import ru.practicum.shareit.requests.exceptions.ItemRequestValidationExeption;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
@@ -31,9 +30,6 @@ public class ItemRequestService {
 
         String action = "Добавление запроса";
         //Проверки
-        if (userId <= 0) throw new ItemRequestValidationExeption(action +
-                ", передан не корректный id пользователя: " + userId);
-
         User user = userStorage.findById(userId).orElseThrow(() -> new UserNotFoundException(action + "," +
                 "не найден пользователь по id:  " + userId));
 
@@ -57,7 +53,6 @@ public class ItemRequestService {
 
     public List<ItemRequestInfDto> getByUserid(long userId, Integer from, Integer size) {
 
-        if (from < 0) throw new ItemRequestValidationExeption("Получен не корректный параметр from: " + from);
         int page = from / size;
 
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -73,8 +68,6 @@ public class ItemRequestService {
     }
 
     public List<ItemRequestInfDto> getAll(Long userId, Integer from, Integer size) {
-
-        if (from < 0) throw new ItemRequestValidationExeption("Получен не корректный параметр from: " + from);
 
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);

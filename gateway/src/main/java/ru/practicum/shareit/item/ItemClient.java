@@ -28,10 +28,18 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> create(long ownerId, ItemDto itemDto) {
+
+        if (ownerId <= 0) throw new ItemValidationException("Создание предмета" +
+                ", передан не корректный id владельца: " + ownerId);
+
         return post("", ownerId, itemDto);
     }
 
     public ResponseEntity<Object> update(long ownerId, long id, ItemDto itemDto) {
+
+        if (ownerId <= 0) throw new ItemValidationException("Обновление Item, передан не корректный id владельца : "
+                + ownerId);
+
         return patch("/" + id, ownerId, itemDto);
     }
 
@@ -40,6 +48,9 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getByOwner(long ownerId, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
+
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size);
@@ -48,6 +59,9 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> search(String text, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemValidationException("Получен не корректный параметр from: " + from);
+
         Map<String, Object> parameters = Map.of(
                 "text", text,
                 "from", from,

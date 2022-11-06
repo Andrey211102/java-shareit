@@ -15,9 +15,9 @@ import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInfDto;
+import ru.practicum.shareit.item.exceptions.ItemAddCommentException;
 import ru.practicum.shareit.item.exceptions.ItemForbiddenException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
-import ru.practicum.shareit.item.exceptions.ItemValidationException;
 import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.requests.ItemRequestsStorage;
 import ru.practicum.shareit.requests.exceptions.ItemRequestNotFoundExeption;
@@ -67,11 +67,6 @@ class ItemServiceImplTest {
 
     //create
     @Test
-    void shouldThrowItemValidationExceptionCreateIncorrectIdOwner() {
-        assertThrows(ItemValidationException.class, () -> service.create(-2, dto));
-    }
-
-    @Test
     void shouldThrowUserNotFoundExceptionCreateUnknowIdOwner() {
         assertThrows(UserNotFoundException.class, () -> service.create(500L, dto));
     }
@@ -102,11 +97,6 @@ class ItemServiceImplTest {
     @Test
     void shouldThrowItemNotFoundExceptionUnknowItemIdUpdate() {
         assertThrows(ItemNotFoundException.class, () -> service.update(user.getId(), 5, dto));
-    }
-
-    @Test
-    void shouldThrowItemValidationExceptionIncorrectIdOwnerUpdate() {
-        assertThrows(ItemValidationException.class, () -> service.update(-2, item.getId(), dto));
     }
 
     @Test
@@ -146,14 +136,14 @@ class ItemServiceImplTest {
 
     //addComment
     @Test
-    void shouldThrowItemValidationExceptionAddCommentWrongTime() {
+    void shouldThrowItemAddCommentExceptionAddCommentWrongTime() {
 
         BookingDtoMapper bookingDtoMapper = new BookingDtoMapper();
         BookingDto bookingDto = new BookingDto(1L, LocalDateTime.now().plusHours(-12),
                 LocalDateTime.now().plusHours(10));
         Booking booking = bookingStorage.save(bookingDtoMapper.fromDto(bookingDto, item, user, BookingStatus.APPROVED));
 
-        assertThrows(ItemValidationException.class,
+        assertThrows(ItemAddCommentException.class,
                 () -> service.addComment(user.getId(), item.getId(), new CommentDto("Комментарий")));
     }
 

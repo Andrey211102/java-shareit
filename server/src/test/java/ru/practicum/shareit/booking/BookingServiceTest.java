@@ -8,8 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfDto;
 import ru.practicum.shareit.booking.exceptions.BookingNotFoundException;
-import ru.practicum.shareit.booking.exceptions.BookingStatusValidateExeption;
-import ru.practicum.shareit.booking.exceptions.BookingValidationException;
+import ru.practicum.shareit.booking.exceptions.BoockingStateException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
@@ -70,18 +69,6 @@ class BookingServiceTest {
 
     //create
     @Test
-    void shouldThrowBookingValidationExceptionCreateIncorrectDateStart() {
-        dto.setStart(LocalDateTime.now().minusHours(1));
-        assertThrows(BookingValidationException.class, () -> service.create(item.getOwner().getId(), dto));
-    }
-
-    @Test
-    void shouldThrowBookingValidationExceptionCreateIncorrectDateEnd() {
-        dto.setEnd(dto.getStart().minusHours(1));
-        assertThrows(BookingValidationException.class, () -> service.create(item.getOwner().getId(), dto));
-    }
-
-    @Test
     void shouldThrowItemNotFoundExceptionCreateIncorrectItem() {
         dto.setItemId(100L);
         assertThrows(ItemNotFoundException.class, () -> service.create(item.getOwner().getId(), dto));
@@ -91,6 +78,14 @@ class BookingServiceTest {
     void shouldThrowUserNotFoundExceptionCreateIncorrectUser() {
         dto.setItemId(item.getId());
         assertThrows(UserNotFoundException.class, () -> service.create(100L, dto));
+    }
+
+    @Test
+    void shouldThrowBookingValidationExceptionCreateNotAvailableItem() {
+        BookingDto dto2 = new BookingDto(2L, LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(10));
+
+        assertThrows(BoockingStateException.class, () -> service.create(item2.getOwner().getId(), dto2));
     }
 
     @Test
@@ -119,7 +114,7 @@ class BookingServiceTest {
     @Test
     void shouldThrowBookingValidationExceptionConfirmationApproved() {
         service.confirmation(booking.getItem().getOwner().getId(), booking.getId(), true);
-        assertThrows(BookingValidationException.class, () -> service.confirmation(booking.getItem().getOwner().getId(),
+        assertThrows(BoockingStateException.class, () -> service.confirmation(booking.getItem().getOwner().getId(),
                 booking.getId(), true));
     }
 
@@ -142,14 +137,6 @@ class BookingServiceTest {
         List<BookingInfDto> finded = service.getAllByState(booking.getBooker().getId(),
                 BookingStatus.WAITING.name(), 0, 10);
         assertEquals(1, finded.size());
-    }
-
-    @Test
-    void shouldThrowBookingStatusValidateExeptionGetAllByStateInvalidStatus() {
-
-        assertThrows(BookingStatusValidateExeption.class,
-                () -> service.getAllByState(booking.getBooker().getId(),
-                        "1111", 0, 10));
     }
 
     @Test
@@ -193,14 +180,6 @@ class BookingServiceTest {
                 BookingState.ALL.name(), 0, 10);
 
         assertEquals(0, finded.size());
-    }
-
-    @Test
-    void shouldThrowBookingStatusValidateExeptionGetAllByOwnerAndStateInvalidState() {
-
-        assertThrows(BookingStatusValidateExeption.class,
-                () -> service.getAllByOwnerAndState(booking.getBooker().getId(),
-                        "1111", 0, 10));
     }
 
     @Test

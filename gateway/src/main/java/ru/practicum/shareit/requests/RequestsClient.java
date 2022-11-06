@@ -26,6 +26,9 @@ public class RequestsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> create(long userId, ItemRequestDto dto) {
+
+        if (userId <= 0) throw new ItemRequestValidationExeption("Создание запроса" +
+                ", передан не корректный id пользователя: " + userId);
         return post("", userId, dto);
     }
 
@@ -34,6 +37,9 @@ public class RequestsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getByUserid(long userId, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemRequestValidationExeption("Получен не корректный параметр from: " + from);
+
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size);
@@ -41,6 +47,9 @@ public class RequestsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAll(long userId, Integer from, Integer size) {
+
+        if (from < 0) throw new ItemRequestValidationExeption("Получен не корректный параметр from: " + from);
+
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size);

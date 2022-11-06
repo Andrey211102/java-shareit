@@ -11,7 +11,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.dto.ItemRequestInfDto;
 import ru.practicum.shareit.requests.exceptions.ItemRequestNotFoundExeption;
-import ru.practicum.shareit.requests.exceptions.ItemRequestValidationExeption;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
@@ -57,12 +56,6 @@ class ItemRequestServiceTest {
         item2 = itemStorage.save(new Item(2, "Пила", "Описание тест", false, user, request));
 
         createdInfDto = service.create(user.getId(), new ItemRequestDto("Описание"));
-    }
-
-    @Test
-    void shouldThrowItemRequestValidationExeptionWhenCreateIncorrectUserId() {
-        assertThrows(ItemRequestValidationExeption.class, () ->
-                service.create(-1, new ItemRequestDto("Тестовое описание")));
     }
 
     @Test
